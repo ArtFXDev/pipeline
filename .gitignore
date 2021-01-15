@@ -1,0 +1,8 @@
+.idea/
+venv/
+
+.pyd
+
+hou.bat
+maya.bat
+nuke.bat
