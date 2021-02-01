@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shelfDocument>
+  <!-- This file contains definitions of shelves, toolbars, and tools.
+ It should not be hand-edited when it is being used by the application.
+ Note, that two definitions of the same element are not allowed in
+ a single file. -->
+
+  <shelfSet name="pipeline" label="Pipeline"/>
+
+  <toolshelf name="shelf_pipeline" label="Pipeline">
+    <memberTool name="save"/>
+    <memberTool name="publish"/>
+    <memberTool name="fm"/>
+    <memberTool name="flipbook"/>
+    <memberTool name="create"/>
+    <memberTool name="conform"/>
+    <memberTool name="last_file"/>
+    <memberTool name="relink_caches"/>
+    <memberTool name="RemapPath"/>
+  </toolshelf>
+
+  <tool name="fm" label="File Manageur" icon="//multifct/tools/pipeline/global/misc/icons/filemanager.png">
+    <script scriptType="python"><![CDATA[
+from pipeline.libs.utils import clear
+clear.do()
+
+from pipeline.tools import filemanager as fm
+fm.launch()
+]]></script>
+  </tool>
+
+  <tool name="flipbook" label="Flipbook" icon="//multifct/tools/pipeline/global/misc/icons/flipbook.png">
+    <script scriptType="python"><![CDATA[from pipeline.libs.engine.houdini_utils import flipbook 
+flipbook.launch()
+]]></script>
+  </tool>
+
+  <tool name="save" label="Save" icon="//multifct/tools/pipeline/global/misc/icons/save.png">
+    <script scriptType="python"><![CDATA[from pipeline.tools import save
+save.save()
+]]></script>
+  </tool>
+
+  <tool name="publish" label="Publish" icon="//multifct/tools/pipeline/global/misc/icons/publish.png">
+    <script scriptType="python"><![CDATA[from pipeline.tools import save
+save.publish()
+]]></script>
+  </tool>
+
+  <tool name="create" label="Create" icon="//multifct/tools/pipeline/global/misc/icons/create.png">
+    <script scriptType="python"><![CDATA[from pipeline.tools.filemanager.ui import create_UI_window as cw_win
+create_file_win = cw_win.CreateWindow()
+create_file_win.show()
+]]></script>
+  </tool>
+
+  <tool name="conform" label="Conform" icon="//multifct/tools/pipeline/global/misc/icons/conform.png">
+    <script scriptType="python"><![CDATA[from pipeline.tools.filemanager.ui import conform_UI_window as cow_win
+conform_file_win = cow_win.ConformWindow()
+conform_file_win.show()
+]]></script>
+  </tool>
+
+  <tool name="last_file" label="Last File" icon="//multifct/tools/pipeline/global/misc/icons/return.png">
+    <script scriptType="python"><![CDATA[from pipeline import conf
+import hou
+hou.hipFile.load(conf.get("last_hou_file"), suppress_save_prompt=True)
+]]></script>
+  </tool>
+
+  <tool name="relink_caches" label="relink caches" icon="//multifct/tools/pipeline/global/misc/icons/relinkCache.png">
+    <script scriptType="python"><![CDATA[#relink the broken caches
+#get all broken caches
+#for each brok_caches:
+#   if the cache folder is in the caches_folder buffer :
+#       if the cache exist in the caches folder buffer
+#           link the cache with this folder
+#   else:
+#       found = false
+#   else : 
+#       display a browser window to select a folder
+#       add this folder path in the buffer caches_folder
+import os
+import re
+
+def ListAllBrokenCaches():
+    """list all the cache of a scene"""
+    nodes = hou.node("/obj").allSubChildren()
+    # print(hou.node("/obj/pyro_import/test"))
+    listCache = []
+    for n in nodes:
+        if n.type().name() == "filecache" and len(n.errors())>0 :
+            # print(n.name())
+            listCache.append(n)
+    return listCache
+
+def GetCacheTemplateName(cache):
+    """
+        Return the template of the cache name by replacing $OS and $HIPNAME by their mapped value and let $F to keep a template format
+    """
+    rawPath = cache.parm("file").rawValue()
+    if "chs(" in rawPath:
+        # print('hou.evalParm(cache.parm("file")) = '+hou.evalParm(cache.parm("file")))
+        cache = cache.parm("file").getReferencedParm().node()  # relocate the referenced node
+        rawPath = cache.parm("file").rawValue()  # get the raw value of the referenced node
+    fileName = hou.hipFile.name()
+    ext = fileName.split(".")[-1]
+    fileName = fileName.replace("."+ext, "")
+    rawPath = rawPath.replace("$HIPNAME", fileName)
+    rawPath = rawPath.replace("$OS", cache.name())
+    
+    cacheName = os.path.basename(rawPath)
+    return cacheName
+
+def isCacheInDir(templateName, path):
+    """check if a cahce exist in path by using the templateName"""
+    found = False
+    filter = re.sub('\$F' + '\d*', '\d*', templateName)
+    listFile = os.listdir(path)
+    print("filter= "+filter)
+    for file in listFile:
+        print("file = "+file)
+        if re.match(filter, file):
+            print("match found")
+            found = True
+            break
+    return found
+    
+cachesFolder = [] #buffer containing the selected dest folder 
+brokenCaches = ListAllBrokenCaches()
+#hou.node("obj/sphere1/dopio1//").errors()
+print("brokenCaches = "+str(brokenCaches))
+
+#print("caches template = "+brokenCaches)
+hou.ui.displayMessage(str(len(brokenCaches))+" broken links has been found")
+for cache in brokenCaches:
+    newPath = ""
+    templateName = GetCacheTemplateName(cache)
+    print("templateName  = "+templateName)
+    found = False
+    for path in cachesFolder:
+        found = isCacheInDir(templateName, path)
+        if found == True : 
+            newPath = path+"/"+templateName
+            print("cache found there : "+newPath)
+            cache.parm("file").set(newPath)
+            break
+    if(found == False):
+        newPath = hou.ui.selectFile(start_directory = hou.hipFile.path(),title = "retarget caches for "+cache.name(), collapse_sequences = True, multiple_select = True)
+        print("newPath = "+newPath)
+        if(newPath!=""):
+            folderCache = os.path.dirname(newPath)
+            folderCache = folderCache.replace(hou.hipFile.path(), "$HIP")
+            cachesFolder.append(folderCache)
+            cache.parm("file").set(newPath)
+            
+            ]]></script>
+  </tool>
+
+  <tool name="RemapPath" label="Remap Path" icon="//multifct/tools/pipeline/global/misc/icons/RemapPaths.png">
+    <script scriptType="python"><![CDATA["""
+    tool to remap path from a location to another
+    3 way to do it : 
+        - From local to server
+        - From server to local
+        - Manually from on input to the second input
+"""
+
+from pipeline.libs.engine import houdini_engine
+from pipeline.conf import global_conf as conf
+engine = houdini_engine.HoudiniEngine()
+root_pipe = conf.root
+cancel = True
+#display a msg to switch path to local or to the server
+choice_msg1 = hou.ui.displayMessage("Remap path", buttons=("switch to the server", "switch to local","manual", "cancel"), close_choice = 3)
+#get the server of the project
+
+if(choice_msg1 != 3):
+    if(choice_msg1 == 0 or choice_msg1 == 1): #remap path automatically
+        sid = engine.get_sid()
+        server = ""
+        project = ""
+        # get the server associated to the prpject
+        if sid: 
+            project = sid.project
+            server = conf.projects_server[project] #get the server associated to the project
+            cancel = False
+            print("server = "+server)
+        else :
+            choice_msg2 = hou.ui.displayMessage("No SID detected, which server is associated to your project ?", buttons=("ana", "tars", "f*ck you"), close_choice = 2)
+            if(choice_msg2 != 2):
+                if(choice_msg2 == 0):
+                    server = "ana"
+                elif(choice_msg2 == 1):
+                    server = "tars"
+                cancel = False
+        
+        #if the server is valid
+        if(server !="" and cancel == False):
+            if(choice_msg1 == 0):
+                old_path = root_pipe
+                new_path = "//"+server+"/PFE_RN_2021"
+            elif(choice_msg1 == 1):
+                old_path = "//"+server+"/PFE_RN_2021"
+                new_path = root_pipe
+    
+    elif(choice_msg1 == 2): #remap path manually
+        input = hou.ui.readMultiInput("choose from old path part to new path", input_labels = ("old path", "new path"), buttons=("Apply", "Cancel"))
+        cancel = True #set cancel is True by default
+        if(input[0]==0):#if user press apply
+            old_path = input[1][0]
+            new_path = input[1][1]
+            cancel = False
+            
+    if(cancel == False):
+        hou.hscript("opchange '" +old_path+"' '"+new_path+"'" )
+        #edit Job env var
+        job_env_var = hou.getenv("JOB")
+        job_env_var = job_env_var.replace(old_path, new_path)
+        print("job_env_var = "+job_env_var)
+        hou.hscript("setenv JOB="+job_env_var)
+                
+        hou.ui.displayConfirmation("the path has been remapped from "+old_path +" to "+new_path)        
+        ]]></script>
+  </tool>
+</shelfDocument>

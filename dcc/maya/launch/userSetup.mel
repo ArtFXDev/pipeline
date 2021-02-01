@@ -1,2 +1,0 @@
-python("import sys;sys.path.insert(0, r'W:/pipeline/dcc/maya/launch')");
-python("import init");

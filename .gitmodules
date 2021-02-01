@@ -1,6 +1,0 @@
-[submodule "packages/filemanager"]
-	path = packages/filemanager
-	url = git@github.com:ArtFXDev/filemanager.git
-[submodule "packages/submitter"]
-	path = packages/submitter
-	url = git@github.com:ArtFXDev/submitter.git

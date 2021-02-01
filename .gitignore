@@ -1,8 +1,6 @@
-.idea/
-venv/
+*.pyc
+config.ini
+.idea*
 
-.pyd
-
-hou.bat
-maya.bat
-nuke.bat
+pipeline/conf/global_pass.py
+.idea/workspace.xml
