@@ -72,7 +72,7 @@ def path_to_dict(path):
     for key in list(data.keys()):
         if key not in shot_keys + asset_keys:
             data.pop(key)
-
+    # debug(data)
     return template.name, data  # need the name ?
 
 

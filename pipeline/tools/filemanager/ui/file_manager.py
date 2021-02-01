@@ -25,7 +25,10 @@ from spil.conf import fs_conf
 # Entities
 from pipeline.libs.manager import entities
 
-log.setLevel(log.ERROR)
+if os.getenv("DEV_PIPELINE"):
+    log.setLevel(log.DEBUG)
+else:
+    log.setLevel(log.ERROR)
 
 # Init import values
 mainPath = os.path.dirname(__file__)
