@@ -69,6 +69,15 @@ class FileManager(QMainWindow):
         # Connects the buttons callback to their function
         self.connect()
         # Default values
+        mode_str = "LOCAL"
+        self.isDev = True if os.getenv("DEV_PIPELINE") else False
+        if "beta" in os.path.dirname(__file__):
+            mode_str = "BETA"
+        if "prod" in os.path.dirname(__file__):
+            mode_str = "PROD"
+        if self.isDev:
+            mode_str = "DEV"
+        self.setWindowTitle("Pipeline - " + mode_str)
         self.listEnv = []
         self.listState = ['w', 'p', 'r']
         if len(self.sid) == 1:
