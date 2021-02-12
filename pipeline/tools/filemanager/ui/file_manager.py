@@ -69,6 +69,15 @@ class FileManager(QMainWindow):
         # Connects the buttons callback to their function
         self.connect()
         # Default values
+        mode_str = "LOCAL"
+        self.isDev = True if os.getenv("DEV_PIPELINE") else False
+        if "beta" in os.path.dirname(__file__):
+            mode_str = "BETA"
+        if "prod" in os.path.dirname(__file__):
+            mode_str = "PROD"
+        if self.isDev:
+            mode_str = "DEV"
+        self.setWindowTitle("Pipeline - " + mode_str)
         self.listEnv = []
         self.listState = ['w', 'p', 'r']
         if len(self.sid) == 1:
@@ -701,7 +710,7 @@ class FileManager(QMainWindow):
             popup.PopUpInfo('Publish succeed')
             self.sid = actual_sid
             self.in_input_sid_lineEdit.setText(str(self.sid))
-        except Exeption as ex:
+        except Exception as ex:
             popup.PopUpError('Error Publish: {}'.fomat(ex.message))
         finally:
             self.entity.engine.open(actual_sid.path)
@@ -929,13 +938,13 @@ class FileManager(QMainWindow):
 
     def closeEvent(self, event):
         # do stuff
-	try:
+        try:
             qRect = self.frameGeometry()
             # print("{} - {}".format(int(qRect.x()), int(qRect.y())))
             conf.set("fm_positionX", qRect.x())
             conf.set("fm_positionY", qRect.y())
             conf.set('last_sid', str(self.sid))
-        except:
+        except Exception as e:
             pass
         self.setParent(None)
         event.accept()
