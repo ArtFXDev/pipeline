@@ -11,6 +11,7 @@
     <memberTool name="save"/>
     <memberTool name="publish"/>
     <memberTool name="fm"/>
+    <memberTool name="rf"/>
     <memberTool name="flipbook"/>
     <memberTool name="create"/>
     <memberTool name="conform"/>
@@ -26,6 +27,13 @@ clear.do()
 
 from pipeline.tools import filemanager as fm
 fm.launch()
+]]></script>
+  </tool>
+  
+  <tool name="rf" label="Renderfarm" icon="//multifct/tools/pipeline/global/misc/icons/renderfarm.png">
+    <script scriptType="python"><![CDATA[
+from submitter import submitter_houdini
+submitter_houdini.run()
 ]]></script>
   </tool>
 
