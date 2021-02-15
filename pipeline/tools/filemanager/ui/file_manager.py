@@ -839,12 +839,10 @@ class FileManager(QMainWindow):
             submitter_maya.run()
         elif self.engine_name == 'nuke':
             from submitter import submitter_nuke
-            reload(submitter_nuke)
             submitter_nuke.run()
         elif self.engine_name == 'houdini':
-            from submitter import submitter_houdini as submit
-            reload(submit)
-            submit.run()
+            from submitter import submitter_houdini
+            submitter_houdini.run()
 
     def open_quote(self, word):
         win = SummitQuoteWindow(self.entity, word, self)
