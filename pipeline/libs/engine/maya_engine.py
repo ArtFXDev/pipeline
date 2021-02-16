@@ -157,7 +157,7 @@ class MayaEngine(Engine):
             print("Namespace to import/delete : {}".format(r.fullNamespace))
             try:
                 pm.FileReference(namespace=r.fullNamespace).importContents(removeNamespace=True)
-            except Exeption:
+            except Exception:
                 r.importContents()
         print('References imported\nNamespace deleted')
 

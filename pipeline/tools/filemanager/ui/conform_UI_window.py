@@ -12,7 +12,6 @@ from spil.libs.fs.fs import FS
 from pipeline import conf
 from spil.conf import fs_conf
 from pipeline.libs.manager.entities import Entities
-from pipeline.libs import engine
 
 # TODO A ajoute en conf
 file = os.path.dirname(__file__)
@@ -58,7 +57,6 @@ class ConformWindow(QtWidgets.QMainWindow):
         # connect functions to ui
         self.connect_btn()
         # other
-        self.populate_asset_subtask()
         self.master()
         self.show_shot_layout()
         self.show_asset_layout()
@@ -78,6 +76,7 @@ class ConformWindow(QtWidgets.QMainWindow):
         pixmap = QtGui.QPixmap(conf.logo_path)
         self.logo.setPixmap(pixmap)
         self.dropdown_shot_seq()
+        self.dropdown_asset_type()
 
     def populate_menus(self):
         self.input_project_combo_box.clear()
@@ -109,7 +108,7 @@ class ConformWindow(QtWidgets.QMainWindow):
         self.close_btn.clicked.connect(self.close)
         self.conform_shot_btn.clicked.connect(self.conform_shot)
         self.conform_asset_btn.clicked.connect(self.conform_asset)
-        self.input_asset_task_combo_box.currentIndexChanged.connect(self.populate_asset_subtask)
+        self.input_asset_task_combo_box.currentIndexChanged.connect(self.dropdown_asset_subtask)
         self.input_shot_task_combo_box.currentIndexChanged.connect(self.populate_shot_software)
         self.shot_radio_btn.toggled.connect(self.show_shot_layout)
         self.asset_radio_btn.toggled.connect(self.show_asset_layout)
@@ -125,7 +124,7 @@ class ConformWindow(QtWidgets.QMainWindow):
         shot_combobox_line_edit.editingFinished.connect(self.format_shot_integer)
         #name dropdown format
         name_combobox_line_edit = self.input_asset_name_combo_box.lineEdit()
-        name_combobox_line_edit.editingFinished.connect(self.format_name)
+        name_combobox_line_edit.editingFinished.connect(self.dropdown_asset_task)
         #subtask dropdown format
         subtask_combobox_line_edit = self.input_shot_subtask_combo_box.lineEdit()
         subtask_combobox_line_edit.editingFinished.connect(self.format_subtask)
@@ -165,6 +164,21 @@ class ConformWindow(QtWidgets.QMainWindow):
     Populate Dropdowns
     ===================
     """
+    def dropdown_asset_type(self):
+        project = self.input_project_combo_box.currentText()
+        project_sid = fs_conf.path_mapping['project'][project]
+
+        dropdown_asset_cat_sid = Sid(data={'project': project_sid})
+        items = FS.get(dropdown_asset_cat_sid.get_with('cat', '*').get_as('cat'))
+        cats = ['-- Select a category --']
+        for item in items:
+            cat = item.cat
+            cats.append(cat)
+        self.asset_type_combo_box.clear()
+        self.asset_type_combo_box.addItems(cats)
+        if len(items) > 1:
+            self.asset_type_combo_box.setCurrentText(cats[1])
+
     def dropdown_asset_name(self):
         if self.asset_type_combo_box.currentText() != '-- Select a category --':
             project = self.input_project_combo_box.currentText()
@@ -225,6 +239,40 @@ class ConformWindow(QtWidgets.QMainWindow):
         self.input_shot_combo_box.addItems(shots)
         if len(items) == 1:
             self.input_shot_combo_box.setCurrentText(shots[1])
+
+    def dropdown_asset_task(self):
+        project = self.input_project_combo_box.currentText()
+        project_sid = fs_conf.path_mapping['project'][project]
+        category = self.asset_type_combo_box.currentText()
+        name = self.input_asset_name_combo_box.currentText()
+        dropdown_asset_task_sid = Sid(data={'project': project_sid, 'cat': category, 'name': name})
+        items = FS.get(dropdown_asset_task_sid.get_with('task', '*').get_as('task'))
+        tasks = asset_tasks
+        for item in items:
+            if item.task not in tasks:
+                tasks.append(item.task)
+        self.input_asset_task_combo_box.clear()
+        self.input_asset_task_combo_box.addItems(tasks)
+        self.input_asset_task_combo_box.setCurrentText(tasks[0])
+
+    def dropdown_asset_subtask(self):
+        project = self.input_project_combo_box.currentText()
+        project_sid = fs_conf.path_mapping['project'][project]
+        category = self.asset_type_combo_box.currentText()
+        name = self.input_asset_name_combo_box.currentText()
+        task = self.input_asset_task_combo_box.currentText()
+        dropdown_asset_subtask_sid = Sid(data={'project': project_sid, 'cat': category, 'name': name, 'task': task})
+        items = FS.get(dropdown_asset_subtask_sid.get_with('subtask', '*').get_as('subtask'))
+        subtasks = []
+        if task in asset_subtasks_dic_full.keys():
+            subtasks = asset_subtasks_dic_full[task]
+        for item in items:
+            subtask = item.subtask
+            if subtask != 'main':
+                subtasks.append(subtask)
+        self.input_asset_subtask_combo_box.clear()
+        self.input_asset_subtask_combo_box.addItems(subtasks)
+        self.input_asset_subtask_combo_box.setCurrentText(subtasks[0])
 
     def dropdown_shot_subtask(self):
         project = self.input_project_combo_box.currentText()
@@ -293,15 +341,14 @@ class ConformWindow(QtWidgets.QMainWindow):
             number = ''
         self.shot_version.setText(number)
 
-
     def format_name(self):
         line_edit = self.input_asset_name_combo_box.lineEdit()
-        formated_name = str(line_edit.text()).replace(' ', '_').lower()
+        formated_name = str(line_edit.text())
         line_edit.setText(formated_name)
 
     def format_subtask(self):
         line_edit = self.input_shot_subtask_combo_box.lineEdit()
-        formated_subtask = str(line_edit.text()).replace(' ', '_').lower()
+        formated_subtask = str(line_edit.text())
         line_edit.setText(formated_subtask)
 
     """
@@ -310,10 +357,10 @@ class ConformWindow(QtWidgets.QMainWindow):
     ==============
     """
 
-    def populate_asset_subtask(self):
-        task = self.input_asset_task_combo_box.currentText()
-        self.input_asset_subtask_combo_box.clear()
-        self.input_asset_subtask_combo_box.addItems(asset_subtasks_dic_full[task])
+    # def populate_asset_subtask(self):
+    #     task = self.input_asset_task_combo_box.currentText()
+    #     self.input_asset_subtask_combo_box.clear()
+    #     self.input_asset_subtask_combo_box.addItems(asset_subtasks_dic_full[task])
 
     def populate_shot_software(self):
         task = self.input_shot_task_combo_box.currentText()
@@ -392,6 +439,9 @@ class ConformWindow(QtWidgets.QMainWindow):
             project_sid = fs_conf.path_mapping['project'][project]
             ext = self.entity.engine.get_file_path().split(".")[-1] or conf.ext_by_soft[self.entity.get_engine()][0]
             # TODO Create the entity object to pass
+
+            print("NAME : " + str(name))
+
             new_sid = Sid(data={'project': project_sid, 'cat': cat, 'name': name,
                                 'task': task, 'subtask': subtask, 'version': 'v' + version,
                                 'state': 'w', 'ext': ext})
@@ -455,7 +505,7 @@ class ConformWindow(QtWidgets.QMainWindow):
             errors.append('Task')
             error = True
         # subtask
-        if self.input_asset_subtask_combo_box.currentText() not in conf.softwares:
+        if self.input_asset_subtask_combo_box.currentText() == '-- Select a subtask --' or self.input_asset_subtask_combo_box.currentText() == '':
             errors.append('Subtask')
             error = True
 
