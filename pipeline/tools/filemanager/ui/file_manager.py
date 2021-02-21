@@ -132,6 +132,7 @@ class FileManager(QMainWindow):
         # Buttons
         self.open_btn.clicked.connect(self.open)
         self.open_new_btn.clicked.connect(self.open_new)
+        self.renderfarm_btn.clicked.connect(self.open_renderfarm_direct)
         self.import_btn.clicked.connect(self.import_file)
         self.refer_btn.clicked.connect(self.refer_file)
         self.in_copy_sid_btn.clicked.connect(self.copy_sid)
@@ -843,6 +844,13 @@ class FileManager(QMainWindow):
         elif self.engine_name == 'houdini':
             from submitter import submitter_houdini
             submitter_houdini.run()
+
+    def open_renderfarm_direct(self):
+        if not self.sid.has_a('ext'):
+            popup.Error("You need to select a scene to send to the renderfarm")
+        from submitter import submitter_engine
+        print("Call submitter for : " + str(self.sid))
+        submitter_engine.run(self.sid)
 
     def open_quote(self, word):
         win = SummitQuoteWindow(self.entity, word, self)
