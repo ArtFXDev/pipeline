@@ -7,12 +7,20 @@ from Qt.QtWidgets import QMessageBox, QFileDialog
 from PySide2 import QtWidgets
 from pipeline import conf
 from pathlib2 import Path
-from github import Github
+from shotgun_api3 import shotgun
+
+
+#from github import Github
+
 
 default_open_pic = str(Path.home())
 
 mainPath = os.path.dirname(__file__)
 ui_path = os.path.join(mainPath, 'qt', 'bug_tracker.ui')
+sys.path.append('//multifct/tools/pipeline/global/packages')
+
+
+
 
 
 class BugTrackerWindow(QtWidgets.QMainWindow):
@@ -26,59 +34,103 @@ class BugTrackerWindow(QtWidgets.QMainWindow):
             if self.main_windows.tb_pin.isChecked():
                 self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
         QtCompat.loadUi(ui_path, self)
-        self.type = 'BUG'
+        self.type = 'Bug'
+        self.priority = '1'
         self.screenshot = ''
-        """
-        Set GitHub
-        """
-        g = Github(conf.github_pass)
-        self.repo = g.get_repo("ArtFXDev/pipeline")
-        self.load()
+        self.screen_list = []
         self.connect()
 
-    def load(self):
-        list_issues = []
-        open_issues = self.repo.get_issues(state='open')
-        for issue in open_issues:
-            name = ''
-            for label in issue.labels:
-                name = name + '[' + label.name + ']'
-            list_issues.append(name + ' ' + issue.title)
-        self.list_send.addItems(list_issues)
+        if conf.get('LOGIN'):
+            self.input_login.setText(conf.get('LOGIN'))
+
+        ''' Link to Shotgun'''
+        self.sg_link.setText('<a href=https://artfx.shotgunstudio.com/page/1144 style="color:#00d1ff;"> Shotgun.com <\\a>')
+        self.sg_link.setOpenExternalLinks(True)
+
+        """
+        Set shotgun
+        """
+        self.SERVER_PATH = "https://artfx.shotgunstudio.com"
+
+
+
 
     def connect(self):
-        self.rb_idea.clicked.connect(lambda: self.change_type('IDEA'))
-        self.rb_bug.clicked.connect(lambda: self.change_type('BUG'))
-        self.bt_screenshot.clicked.connect(self.screen_shot)
+        '''Type'''
+        self.rb_idea.clicked.connect(lambda: self.change_type('Feature'))
+        self.rb_bug.clicked.connect(lambda: self.change_type('Bug'))
+        '''Priority'''
+        self.prio_small.clicked.connect(lambda: self.change_prio('1'))
+        self.prio_medium.clicked.connect(lambda: self.change_prio('2'))
+        self.prio_high.clicked.connect(lambda: self.change_prio('3'))
+        '''Screenshot'''
+        self.bt_screenshot.clicked.connect(self.attach_screen)
         self.bt_send.clicked.connect(self.send)
+        self.btn_delete.clicked.connect(self.deleteItem)
+
+    def deleteItem(self):
+        self.attach_list.takeItem(self.attach_list.currentRow())
+        del self.screen_list[self.attach_list.currentRow()]
+
+
+    def change_prio(self, val):
+        self.priority = val
 
     def change_type(self, val):
         self.type = val
 
-    def screen_shot(self):
-        self.screenshot = QFileDialog.getOpenFileName(self, 'Open file',
-                                                      'C:/Users/Pictures/', "Image files (*.jpg *.png)")[0]
+    def attach_screen(self):
+        self.screenshot = QFileDialog.getOpenFileName(self, 'Open file','C:/Users/Pictures/', "Image files (*.jpg *.png)")[0]
+        self.screen_list.append(self.screenshot)
+
+        filename = self.screenshot.split('/')[-1]
+        self. attach_list.addItem(filename)
 
     def send(self):
-        if self.input_message.toPlainText() and self.input_object.text() and self.input_name.text():
-            """
-            Image upload
-            """
-            image = '![SceenShot](' + self.screenshot + ')'
+
+        if self.input_message.toPlainText() and self.input_object.text() and self.input_login.text() and self.input_password.text():
 
             """
             Get value
             """
-            name = self.input_name.text()
-            message = self.input_message.toPlainText() + '\nBy ' + name + ' project : ' + self.main_windows.sid.project
+
+            if not conf.get('LOGIN'):
+                conf.set('LOGIN', self.input_login.text())
+
+            SHOT_LOGIN = self.input_login.text()
+            SHOT_PASS = self.input_password.text()
+            message = self.input_message.toPlainText() + '\n project : ' + self.main_windows.sid.project
             titre = self.input_object.text()
-            label = self.repo.get_label(self.type)
-            self.repo.create_issue(title=titre, body=message + ' ' + image, labels=[label])
+            type = self.type
+            priority = self.priority
+
+            '''
+            Create Ticket
+            '''
+            self.sg = shotgun.Shotgun(self.SERVER_PATH, login= SHOT_LOGIN, password=SHOT_PASS)
+
+            data = {
+                'project': {'type': 'Project', 'id': 567},
+                'sg_ticket_type': type,
+                'sg_priority': priority,
+                'title': titre,
+                'description': message
+            }
+
+            ticket_id = self.sg.create('Ticket', data)
+
+            '''
+            Send Screenshot
+            '''
+            for screenshot in self.screen_list:
+
+                self.sg.upload("Ticket", ticket_id['id'], screenshot)
+
             confirm_btn = QMessageBox.information(None, 'Success', "This issue as been send", QMessageBox.Yes)
             if confirm_btn == QMessageBox.Yes:
                 self.close()
-        else:
-            self.lbl_error.setText('Message invalid or empty !')
+            else:
+                self.lbl_error.setText('Message invalid or empty !')
 
 
 if __name__ == '__main__':
@@ -89,3 +141,4 @@ if __name__ == '__main__':
     fm = BugTrackerWindow()
     fm.show()
     app.exec_()
+
