@@ -123,6 +123,54 @@ class HoudiniEngine(Engine):
     def is_batch(self):
         return not hou.isUIAvailable()
 
+    def get_render_nodes(self):
+        """
+        Get all the output render node that can be submit with the farm
+        including merge node and children recursively
+        :return dict: dict key: node path value: node type or other dict for merge rop
+        """
+        output = {}
+        hou_render_types = [
+            "ifd",
+            "arnold",
+            "vray_renderer",
+            "Redshift_ROP"
+        ]
+
+        def get_merge_input(merge_node, parent=None):
+            parent = parent or []
+            out = {}
+            for input in merge_node.inputs():
+                if input.type().name() == "merge" and input.path() not in parent:
+                    parent.append(merge_node.path())
+                    out[input.path()] = get_merge_input(input, parent)
+                if input.type().name() not in hou_render_types:
+                    continue
+                out[input.path()] = input.type().name()
+            return out
+
+        def get_merge_output(merge_node, parent=None):
+            for output_node in merge_node.outputs():
+                if output_node.type().name() == "merge" and output_node.path() not in output.keys():
+                    output[output_node.path()] = get_merge_input(output_node, parent)
+                    get_merge_output(output_node)
+
+        for render_types in hou_render_types:
+            node_type = hou.nodeType(hou.nodeTypeCategories()['Driver'], render_types)
+            if not node_type:
+                continue
+            for _node in node_type.instances():
+                output[_node.path()] = _node.type().name()
+                for output_node in _node.outputs():
+                    if output_node.type().name() != "merge":
+                        continue
+                    if output_node in output.keys():
+                        continue
+                    output[output_node.path()] = get_merge_input(output_node)
+                    get_merge_output(output_node)
+
+        return output
+
     def __str__(self):
         return 'houdini'
 

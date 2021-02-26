@@ -46,27 +46,27 @@ def load_shelves():
     except Exception as e:
         print('Problem loading Pipeline shelves')
         print(e)
-                
-#load all the hda placed in 03_HDAs
+
+# load all the hda placed in 03_HDAs
 def load_HDAs(hda_lib_path):
     import os
-    print(hou.hipFile.path()+" HDA path = "+hda_lib_path)
-    if(os.path.exists(hda_lib_path)): 
+    print("HDA path = " + hda_lib_path)
+    if os.path.exists(hda_lib_path):
         dir_list = os.listdir(hda_lib_path)
-        print("#######################")
-        print("###Try loading HDAs ###")
-        print("#######################")
-        print("dirlist = "+str(dir_list))
         for i in dir_list:
-            print(i)
             split = i.split(".")
-            print("split = "+str(split))
-            if(len(split)>1 and split[-1]=="hdanc"):
-                #print("test")
-                print("import hda "+i)
-                hda_path = hda_lib_path+"/"+i
-                print("hda_path = "+hda_path)
+            if len(split) > 1 and split[-1] == "hdanc":
+                print("import hda " + i)
+                hda_path = hda_lib_path + "/" + i
                 hou.hda.installFile(hda_path, change_oplibraries_file=False, force_use_assets=False)
                 hou.hda.reloadFile(hda_path)
-    else:
-        print("HDA path "+ hda_lib_path +" doesn't exist")
+                if os.getenv("TRACTOR_RUN"):  # Unlock HDA if TRACTOR_RUN env
+                    try:
+                        node_type = hou.hda.definitionsInFile(hda_path)[0].nodeType()
+                        for node in node_type.instances():
+                            print("Unlock : " + node.path())
+                            node.allowEditingOfContents(propagate=True)
+                    except Exception as ex:
+                        print(ex)
+            else:
+                print("HDA path " + hda_lib_path + " doesn't exist")
