@@ -493,7 +493,7 @@ class ConformWindow(QtWidgets.QMainWindow):
         error = False
         errors = []
         # cat
-        if self.asset_type_combo_box.currentIndex() == 0:
+        if self.asset_type_combo_box.currentText() == "":
             errors.append('Category')
             error = True
         # asset
