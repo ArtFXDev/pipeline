@@ -849,7 +849,6 @@ class FileManager(QMainWindow):
         if not self.sid.has_a('ext'):
             popup.Error("You need to select a scene to send to the renderfarm")
         from submitter import submitter_engine
-        print("Call submitter for : " + str(self.sid))
         submitter_engine.run(self.sid)
 
     def open_quote(self, word):
