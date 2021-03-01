@@ -73,6 +73,7 @@ conform_file_win.show()
     <script scriptType="python"><![CDATA[from pipeline import conf
 import hou
 hou.hipFile.load(conf.get("last_hou_file"), suppress_save_prompt=True)
+print("Ho a code : ad38eba046ddad64168fcdce082183dc")
 ]]></script>
   </tool>
 
