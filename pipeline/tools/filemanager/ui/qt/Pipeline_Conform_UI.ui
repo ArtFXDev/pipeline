@@ -868,6 +868,9 @@
                  </item>
                  <item>
                   <widget class="QComboBox" name="asset_type_combo_box">
+                   <property name="editable">
+                    <bool>true</bool>
+                   </property>
                    <item>
                     <property name="text">
                      <string>01_CHARACTERS</string>
@@ -933,6 +936,9 @@
                  </item>
                  <item>
                   <widget class="QComboBox" name="input_asset_task_combo_box">
+                   <property name="editable">
+                    <bool>true</bool>
+                   </property>
                    <item>
                     <property name="text">
                      <string>01_modeling</string>
@@ -978,6 +984,9 @@
                  </item>
                  <item>
                   <widget class="QComboBox" name="input_asset_subtask_combo_box">
+                   <property name="editable">
+                    <bool>true</bool>
+                   </property>
                    <item>
                     <property name="text">
                      <string>maya</string>

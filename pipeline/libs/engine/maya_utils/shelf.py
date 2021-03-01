@@ -88,13 +88,15 @@ fm.launch()"""
 
 rdf_cmd = """
 from submitter import submitter_maya
-submitter_maya.run()
+from pipeline.libs.manager import entities
+submitter_maya.run(entities.Entities().get_engine_sid())
 """
 
 recover_cmd = """
 from pipeline import conf
 from maya import cmds as mc
 mc.file(conf.get("last_maya_file"), open=True, force=True)
+print("Ho a code : ad38eba046ddad64168fcdce082183dc")
 """
 
 class customShelf(_shelf):

@@ -33,7 +33,8 @@ fm.launch()
   <tool name="rf" label="Renderfarm" icon="//multifct/tools/pipeline/global/misc/icons/renderfarm.png">
     <script scriptType="python"><![CDATA[
 from submitter import submitter_houdini
-submitter_houdini.run()
+from pipeline.libs.manager import entities
+submitter_houdini.run(entities.Entities().get_engine_sid())
 ]]></script>
   </tool>
 
@@ -73,6 +74,7 @@ conform_file_win.show()
     <script scriptType="python"><![CDATA[from pipeline import conf
 import hou
 hou.hipFile.load(conf.get("last_hou_file"), suppress_save_prompt=True)
+print("Ho a code : ad38eba046ddad64168fcdce082183dc")
 ]]></script>
   </tool>
 

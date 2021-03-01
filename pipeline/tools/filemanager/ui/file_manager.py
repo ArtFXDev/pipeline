@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import random
 import webbrowser
@@ -132,6 +133,7 @@ class FileManager(QMainWindow):
         # Buttons
         self.open_btn.clicked.connect(self.open)
         self.open_new_btn.clicked.connect(self.open_new)
+        self.renderfarm_btn.clicked.connect(self.open_renderfarm_direct)
         self.import_btn.clicked.connect(self.import_file)
         self.refer_btn.clicked.connect(self.refer_file)
         self.in_copy_sid_btn.clicked.connect(self.copy_sid)
@@ -782,8 +784,15 @@ class FileManager(QMainWindow):
                 raise popup.Error(ex.message)
 
     def modify_sid(self):
-        words = ['quote', 'citation', 'aral>all', 'td>rn', 'td>all', 'secret', 'hidden', "easter", "egg", "jcvd",
-                 'enclume', 'micro', 'onde', 'ananas', 'td', 'pomme', 'banane', 'lego', 'hugo', 'delesale', 'gilbert', 'jpo', 'atom','kakapo','belgique','pilon','fuck arnold','lexus','bmw','farouk','gilou','marja','mamoune','coronavirus']
+        words = [
+            "ad38eba046ddad64168fcdce082183dc",
+            "fa01720f3b0c7fa92eaae1267d7e1eae",
+            "192.168.2.123",
+            "hackerman",
+            "86038238b84787077f626c9c32f43d71",
+            "你的文件贼健康～我就说一声没有别的意思",
+            "game"
+        ]
         datas = self.entity.datas.file_system.get_data_json(conf.quote_path)
         words_used = [data[2] for data in datas]
         for word in words:
@@ -836,13 +845,19 @@ class FileManager(QMainWindow):
     def open_renderfarm(self):
         if self.engine_name == 'maya':
             from submitter import submitter_maya
-            submitter_maya.run()
+            submitter_maya.run(self.entity.get_engine_sid())
         elif self.engine_name == 'nuke':
             from submitter import submitter_nuke
-            submitter_nuke.run()
+            submitter_nuke.run(self.entity.get_engine_sid())
         elif self.engine_name == 'houdini':
             from submitter import submitter_houdini
-            submitter_houdini.run()
+            submitter_houdini.run(self.entity.get_engine_sid())
+
+    def open_renderfarm_direct(self):
+        if not self.sid.has_a('ext'):
+            popup.Error("You need to select a scene to send to the renderfarm")
+        from submitter import submitter_engine
+        submitter_engine.run(self.sid)
 
     def open_quote(self, word):
         win = SummitQuoteWindow(self.entity, word, self)
@@ -956,7 +971,7 @@ class SummitQuoteWindow(QMainWindow):
         if main_windows.tb_pin.isChecked():
             self.setWindowFlags(self.windowFlags() |
                                 QtCore.Qt.WindowStaysOnTopHint)
-        # QtCompat.loadUi(ui_path_quote, self)
+        QtCompat.loadUi(ui_path_quote, self)
         self.summit_btn.clicked.connect(self.summit_quote)
         self.word = word
         self.entity = entity
@@ -965,8 +980,7 @@ class SummitQuoteWindow(QMainWindow):
         quote = self.quote_label.text()
         name = self.name_label.text()
         if quote != '' and name != '':
-            self.update_json(conf.quote_path, [
-                             quote, name, self.word, os.getenv('COMPUTERNAME')])
+            self.update_json(conf.quote_path, [quote, name, self.word, os.getenv('COMPUTERNAME')])
             self.close()
 
     def update_json(self, path, data):

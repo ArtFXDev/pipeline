@@ -27,13 +27,8 @@ sid_templates = {
 
 """
 import os
-from Qt.QtWidgets import QMessageBox
 
 root = os.getenv('ROOT_PIPE') or "D:/SynologyDrive"
-# if not os.getenv('ROOT_PIPE'):
-#     erreurEnvMsg = QMessageBox()
-#     erreurEnvMsg.setIcon(QMessageBox.Critical)
-#     erreurEnvMsg.setText('ROOT_PIPE env not exist please setup')
 
 ###########################################################################################
 # PATHS The order is important, first match is returned.

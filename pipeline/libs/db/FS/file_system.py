@@ -208,7 +208,7 @@ class FileSystem(object):
         path_template = conf.scene_templates.format(
             project=sid.project, software=engine_crate)
         file_name_template = conf.asset_template_name.format(
-            subtask=sid.subtask, ext=sid.ext)
+            subtask=engine_crate, ext=sid.ext)
 
         path_template = self.template_init(
             path_template, file_name_template, engine_crate)
