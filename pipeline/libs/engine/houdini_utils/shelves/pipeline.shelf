@@ -33,7 +33,8 @@ fm.launch()
   <tool name="rf" label="Renderfarm" icon="//multifct/tools/pipeline/global/misc/icons/renderfarm.png">
     <script scriptType="python"><![CDATA[
 from submitter import submitter_houdini
-submitter_houdini.run()
+from pipeline.libs.manager import entities
+submitter_houdini.run(entities.Entities().get_engine_sid())
 ]]></script>
   </tool>
 

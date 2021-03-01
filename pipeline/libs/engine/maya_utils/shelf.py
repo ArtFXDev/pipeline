@@ -88,7 +88,8 @@ fm.launch()"""
 
 rdf_cmd = """
 from submitter import submitter_maya
-submitter_maya.run()
+from pipeline.libs.manager import entities
+submitter_maya.run(entities.Entities().get_engine_sid())
 """
 
 recover_cmd = """
