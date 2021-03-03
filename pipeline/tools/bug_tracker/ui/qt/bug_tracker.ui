@@ -564,7 +564,11 @@
           <item row="7" column="0">
            <widget class="QPushButton" name="btn_delete">
             <property name="text">
+<<<<<<< HEAD
              <string>Delete</string>
+=======
+             <string>Delete screenshot</string>
+>>>>>>> origin/beta
             </property>
            </widget>
           </item>
@@ -585,6 +589,72 @@
            <widget class="QPushButton" name="bt_screenshot">
             <property name="text">
              <string>Attach screenshot</string>
+<<<<<<< HEAD
+=======
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0">
+           <widget class="QWidget" name="attachments_list" native="true">
+            <layout class="QFormLayout" name="formLayout">
+             <item row="1" column="1">
+              <widget class="QLabel" name="lbl_error">
+               <property name="palette">
+                <palette>
+                 <active>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>255</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </active>
+                 <inactive>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>255</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </inactive>
+                 <disabled>
+                  <colorrole role="WindowText">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>120</red>
+                     <green>120</green>
+                     <blue>120</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </disabled>
+                </palette>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="textFormat">
+                <enum>Qt::PlainText</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QListWidget" name="attach_list"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Shotgun login :</string>
+>>>>>>> origin/beta
             </property>
            </widget>
           </item>
