@@ -790,13 +790,13 @@ class FileManager(QMainWindow):
             "192.168.2.123",
             "hackerman",
             "86038238b84787077f626c9c32f43d71",
-            "你的文件贼健康～我就说一声没有别的意思",
+            u'\u4f60\u7684\u6587\u4ef6\u8d3c\u5065\u5eb7\uff5e\u6211\u5c31\u8bf4\u4e00\u58f0\u6ca1\u6709\u522b\u7684\u610f\u601d',
             "game"
         ]
         datas = self.entity.datas.file_system.get_data_json(conf.quote_path)
         words_used = [data[2] for data in datas]
         for word in words:
-            if word in self.in_input_sid_lineEdit.text().split(' ') and word not in words_used:
+            if word in self.in_input_sid_lineEdit.text() and word not in words_used:
                 self.open_quote(word)
                 break
         if Sid(path=self.in_input_sid_lineEdit.text()):
