@@ -477,19 +477,19 @@ class CreateWindow(QtWidgets.QMainWindow):
         error = False
         errors = []
         # cat
-        if self.asset_type_combo_box.currentIndex() == 0:
+        if self.asset_type_combo_box.currentText() == '-- Select a category --' or self.asset_type_combo_box.currentText() == "":
             errors.append('Category')
             error = True
         # asset
-        if self.input_asset_name_combo_box.currentText() == '':
+        if self.input_asset_name_combo_box.currentText() == "":
             errors.append('Name')
             error = True
         # task
-        if self.input_asset_task_combo_box.currentIndex() == 0:
+        if self.input_asset_task_combo_box.currentText() == '-- Select a task --' or self.input_asset_task_combo_box.currentText() == "":
             errors.append('Task')
             error = True
         # subtask
-        if self.input_asset_subtask_combo_box.currentText() == '-- Select a subtask --' or self.input_asset_subtask_combo_box.currentText() == '':
+        if self.input_asset_subtask_combo_box.currentText() == '-- Select a subtask --' or self.input_asset_subtask_combo_box.currentText() == "":
             errors.append('Subtask')
             error = True
 
