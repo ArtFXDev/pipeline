@@ -62,16 +62,16 @@ class HoudiniEngine(Engine):
         hou.putenv('FARM', farm)
         hou.putenv('PROJECT', project)
 
-        print 'JOB : ', workspace_path
-        print 'WIPCACHE : ', wipcache_path
-        print 'PUBCACHE : ', pubcache_path
-        print 'ASSET : ', asset_path
-        print 'SHOT : ', shot_path
-        print 'PNUM : ', pnum
-        print 'SNUM : ', snum
-        print 'ASSET_NAME : ', name
-        print 'FARM : ', farm
-        print 'PROJECT : ', project
+        print("JOB : {}".format(workspace_path))
+        print("WIPCACHE : {}".format(wipcache_path))
+        print("PUBCACHE : {}".format(pubcache_path))
+        print("ASSET : {}".format(asset_path))
+        print("SHOT : {}".format(shot_path))
+        print("PNUM : {}".format(pnum))
+        print("SNUM : {}".format(snum))
+        print("ASSET_NAME : {}".format(name))
+        print("FARM : {}".format(farm))
+        print("PROJECT : {}".format(project))
 
     def open_as(self, path):
         """
