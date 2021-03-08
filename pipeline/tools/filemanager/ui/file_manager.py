@@ -500,10 +500,10 @@ class FileManager(QMainWindow):
         version = self.sid.get_as('state')
         comment_file = os.path.join(version.path, 'comment.txt')
         if os.path.exists(comment_file):
-            file = open(comment_file, 'r')
-            comment = file.read()
-            self.text_description.clear()
-            self.text_description.insertPlainText(comment)
+            with open(comment_file) as file:
+                comment = file.read()
+                self.text_description.clear()
+                self.text_description.insertPlainText(comment)
 
 # endregion
 
