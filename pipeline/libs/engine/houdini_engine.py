@@ -130,12 +130,13 @@ class HoudiniEngine(Engine):
         :return dict: dict key: node path value: node type or other dict for merge rop
         """
         output = {}
-        hou_render_types = [
-            "ifd",
-            "arnold",
-            "vray_renderer",
-            "Redshift_ROP"
-        ]
+        hou_render_types = {
+            "ifd": "Driver",
+            "arnold": "Driver",
+            "vray_renderer": "Driver",
+            "Redshift_ROP": "Driver",
+            "filecache": "Sop"
+        }
 
         def get_merge_input(merge_node, parent=None):
             parent = parent or []
@@ -144,7 +145,7 @@ class HoudiniEngine(Engine):
                 if input.type().name() == "merge" and input.path() not in parent:
                     parent.append(merge_node.path())
                     out[input.path()] = get_merge_input(input, parent)
-                if input.type().name() not in hou_render_types:
+                if input.type().name() not in hou_render_types.keys():
                     continue
                 out[input.path()] = input.type().name()
             return out
@@ -155,8 +156,8 @@ class HoudiniEngine(Engine):
                     output[output_node.path()] = get_merge_input(output_node, parent)
                     get_merge_output(output_node)
 
-        for render_types in hou_render_types:
-            node_type = hou.nodeType(hou.nodeTypeCategories()['Driver'], render_types)
+        for render_types, render_category in hou_render_types.items():
+            node_type = hou.nodeType(hou.nodeTypeCategories()[render_category], render_types)
             if not node_type:
                 continue
             for _node in node_type.instances():
