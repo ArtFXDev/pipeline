@@ -96,7 +96,6 @@ recover_cmd = """
 from pipeline import conf
 from maya import cmds as mc
 mc.file(conf.get("last_maya_file"), open=True, force=True)
-print("Ho a code : ad38eba046ddad64168fcdce082183dc")
 """
 
 class customShelf(_shelf):
