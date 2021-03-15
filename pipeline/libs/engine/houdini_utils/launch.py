@@ -49,11 +49,9 @@ def load_shelves():
 
 # load all the hda placed in 03_HDAs
 def load_HDAs(hda_lib_path):
-    import os
     print("HDA path = " + hda_lib_path)
     if os.path.exists(hda_lib_path):
-        dir_list = os.listdir(hda_lib_path)
-        for i in dir_list:
+        for i in os.listdir(hda_lib_path):
             split = i.split(".")
             if len(split) > 1 and split[-1] == "hdanc":
                 print("import hda " + i)
@@ -62,10 +60,11 @@ def load_HDAs(hda_lib_path):
                 hou.hda.reloadFile(hda_path)
                 if os.getenv("TRACTOR_RUN"):  # Unlock HDA if TRACTOR_RUN env
                     try:
-                        node_type = hou.hda.definitionsInFile(hda_path)[0].nodeType()
-                        for node in node_type.instances():
-                            print("Unlock : " + node.path())
-                            node.allowEditingOfContents(propagate=True)
+                        for definition in hou.hda.definitionsInFile(hda_path):
+                            node_type = definition.nodeType()
+                            for node in node_type.instances():
+                                print("Unlock : " + node.path())
+                                node.allowEditingOfContents(propagate=True)
                     except Exception as ex:
                         print(ex)
             else:

@@ -1,5 +1,4 @@
 from pipeline.conf.global_conf import *
-from pipeline.conf.global_pass import *
 
 # user config
 from configio import ConfigIO
@@ -38,11 +37,11 @@ if __name__ == '__main__':
 	from pprint import pprint
 	#pprint(globals())
 
-	print projects
+	print(projects)
 
 	# user conf
-	print project
+	print(project)
 	set('project', 'bla')
-	print project
+	print(project)
 
 	pprint(globals())
