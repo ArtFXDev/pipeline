@@ -209,9 +209,9 @@ if(choice_msg1 != 3):
         if(server !="" and cancel == False):
             if(choice_msg1 == 0):
                 old_path = root_pipe
-                new_path = "//"+server+"/PFE_RN_2021"
+                new_path = "//" + server
             elif(choice_msg1 == 1):
-                old_path = "//"+server+"/PFE_RN_2021"
+                old_path = "//" + server
                 new_path = root_pipe
     
     elif(choice_msg1 == 2): #remap path manually
