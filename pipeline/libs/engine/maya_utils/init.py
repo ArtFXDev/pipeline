@@ -3,13 +3,17 @@ from pipeline import conf
 from spil.conf import fs_conf
 from pipeline.libs.manager.entities import Entities
 import maya.mel as mel
+import maya.cmds as mc
 
 def init_scene():
     log.info("Initialisation de la scene maya")
 
     entity = Entities()
     sid = entity.get_engine_sid()
+    log.info("Initialisation de la scene maya")
+    log.info("file : " + mc.file(query=True, sceneName=True))
     if sid.has_a("ext"):
+        log.info("Initialisation des shelfs")
         # Shelf
         project_path = sid.path.split("03_WORK_PIPE")[0]
         shelf_path = project_path + "03_WORK_PIPE/04_TOOLS/01_SHELVES"
@@ -26,6 +30,7 @@ def init_scene():
                             mel.eval(mel_cmd)
                         except RuntimeError:
                             log.warn("shelf, not loaded correctly, it's may have been already loaded")
+        log.info("Initialisation du workspace")
         # Workspace
         project = ''
         for key, value in fs_conf.path_mapping['project'].items():
