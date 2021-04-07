@@ -116,4 +116,5 @@ class customShelf(_shelf):
         self.addButon(label="Last File", icon="return.png", command=recover_cmd)
 
 
-customShelf()
+def launch():
+    customShelf()
