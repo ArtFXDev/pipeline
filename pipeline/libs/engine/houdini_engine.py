@@ -22,6 +22,7 @@ class HoudiniEngine(Engine):
         Workspace
         """
         workspace_path = path.split('/scenes')[0]
+        out_workspace = workspace_path.replace(os.getenv('ROOT_PIPE'), '//drovia') + '/images'
         pnum = ''
         snum = ''
         name = ''
@@ -44,6 +45,7 @@ class HoudiniEngine(Engine):
                                          0], '04_PUBLISH_CACHE_FX', name).replace(os.sep, '/')
 
         sid = Sid(path=path)
+        farm = ""
         if sid.is_shot():
             farm = sid.get('project').upper() + '_' + \
                 sid.get('seq') + '_' + sid.get('shot')
@@ -61,8 +63,10 @@ class HoudiniEngine(Engine):
         hou.putenv('ASSET_NAME', name)
         hou.putenv('FARM', farm)
         hou.putenv('PROJECT', project)
+        hou.putenv('OUT', out_workspace)
 
         print("JOB : {}".format(workspace_path))
+        print("OUT : {}".format(out_workspace))
         print("WIPCACHE : {}".format(wipcache_path))
         print("PUBCACHE : {}".format(pubcache_path))
         print("ASSET : {}".format(asset_path))
