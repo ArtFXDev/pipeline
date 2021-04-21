@@ -1,17 +1,15 @@
+import os
 from spil.libs.util import log
 from pipeline import conf
 from spil.conf import fs_conf
 from pipeline.libs.manager.entities import Entities
 import maya.mel as mel
-import maya.cmds as mc
 
 def init_scene():
     log.info("Initialisation de la scene maya")
 
     entity = Entities()
     sid = entity.get_engine_sid()
-    log.info("Initialisation de la scene maya")
-    log.info("file : " + mc.file(query=True, sceneName=True))
     if sid.has_a("ext"):
         log.info("Initialisation des shelfs")
         # Shelf

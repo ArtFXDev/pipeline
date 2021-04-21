@@ -154,6 +154,8 @@ class MayaEngine(Engine):
     def import_reference_delete_namespace(self):
         import pymel.core as pm
         for r in pm.listReferences():
+            if not r:
+                continue
             print("Namespace to import/delete : {}".format(r.fullNamespace))
             try:
                 pm.FileReference(namespace=r.fullNamespace).importContents(removeNamespace=True)
